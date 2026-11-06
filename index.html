@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta property="og:title" content="مساعدك على الواتساب — @code.sheikh">
+<meta property="og:description" content="الشرح كامل مع البرومبت: مساعد واتساب بـ Claude و Kapso">
+<title>مساعدك على الواتساب</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&family=Tajawal:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one narrow RTL column like a terminal session — numbered steps (a real sequence), each with its own copyable command block. Single deliberate dark look (brand charcoal + amber). */
+:root{
+  --bg:#0E0D0C; --panel:#171513; --line:#2A2622; --fg:#F3ECE3; --muted:#A39A8F;
+  --amber:#F7A21B; --deep:#D9700A; --ok:#3DDC84;
+  --display:'Cairo','Tajawal',system-ui,sans-serif; --body:'Tajawal',system-ui,sans-serif;
+  --mono:'JetBrains Mono',Consolas,'Courier New',monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:18px;line-height:1.75;
+  background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);
+  background-size:44px 44px}
+.wrap{max-width:760px;margin:0 auto;padding-block:40px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header{display:flex;flex-direction:column;gap:14px;padding-bottom:28px;border-bottom:1px solid var(--line)}
+.by{font-family:var(--mono);font-size:14px;color:var(--amber);direction:ltr;text-align:right}
+h1{font-family:var(--display);font-weight:900;font-size:clamp(34px,7vw,54px);line-height:1.2;margin:0;text-wrap:balance}
+h1 em{font-style:normal;color:var(--amber)}
+.lede{color:var(--muted);margin:0;max-width:60ch}
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-family:var(--mono);font-size:14px;direction:ltr;justify-content:flex-end}
+.flow span{padding:6px 14px;border:1.5px solid var(--line);border-radius:999px;background:var(--panel)}
+.flow i{color:var(--amber);font-style:normal;letter-spacing:2px}
+h2{font-family:var(--display);font-weight:700;font-size:24px;margin:0;text-wrap:balance}
+section{display:flex;flex-direction:column;gap:14px;padding-block:28px;border-bottom:1px solid var(--line)}
+.need{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.need div{padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--panel);min-width:0}
+.need b{display:block;font-family:var(--display);font-size:17px}
+.need small{color:var(--muted);font-size:15px}
+ol.steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:30px;counter-reset:s}
+ol.steps>li{counter-increment:s;display:grid;grid-template-columns:48px 1fr;gap:16px}
+ol.steps>li::before{content:counter(s);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-weight:900;font-size:22px;color:#160d02;background:linear-gradient(180deg,#FFC25A,var(--amber))}
+.step{display:flex;flex-direction:column;gap:10px;min-width:0}
+.step h3{font-family:var(--display);font-size:21px;margin:8px 0 0}
+.step p{margin:0;color:var(--muted)}
+.cmd{position:relative;border:1px solid var(--line);border-radius:14px;background:#0A0908;overflow:hidden}
+.cmd pre{margin:0;padding:16px 18px 16px 88px;overflow-x:auto;font-family:var(--mono);font-size:15px;line-height:1.7;direction:ltr;text-align:left;color:var(--fg)}
+.cmd pre .c{color:#6f675e}
+.cmd pre .p{color:var(--amber)}
+.copy{position:absolute;top:10px;left:10px;font-family:var(--body);font-weight:700;font-size:14px;padding:6px 12px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--fg);cursor:pointer}
+.copy:hover{border-color:var(--amber)}
+.copy:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.copy.done{color:var(--ok);border-color:var(--ok)}
+.prompt pre{white-space:pre-wrap;direction:rtl;text-align:right;font-family:var(--body);font-size:16px;padding:18px 18px 18px 18px;padding-top:52px}
+.fill{color:var(--amber)}
+.note{padding:14px 16px;border-radius:14px;border:1px solid rgba(247,162,27,.35);background:rgba(247,162,27,.07);font-size:16px}
+.note b{color:var(--amber)}
+ul.tips{margin:0;padding-right:20px;display:flex;flex-direction:column;gap:8px;color:var(--muted)}
+ul.tips b{color:var(--fg)}
+code{font-family:var(--mono);font-size:.88em;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:1px 6px;direction:ltr;unicode-bidi:isolate}
+a{color:var(--amber)}
+footer{padding-top:24px;color:var(--muted);font-size:15px;display:flex;flex-direction:column;gap:6px}
+@media (prefers-reduced-motion:no-preference){.copy{transition:border-color .15s,color .15s}}
+</style>
+</head>
+<body style="margin:0">
+
+<div class="wrap" dir="rtl">
+  <header>
+    <div class="by">@code.sheikh</div>
+    <h1>مساعدك على الواتساب <em>بـ Claude و Kapso</em></h1>
+    <p class="lede">مساعد ذكي يرد على زبائنك، يحجز المواعيد وياخذ الطلبيات على رقم واتساب حقيقي، وإنت نايم. الخطوات كاملة مع البرومبت.</p>
+    <div class="flow" aria-label="Claude → Kapso → WhatsApp"><span>Claude Code</span><i>- - -</i><span>Kapso</span><i>- - -</i><span>WhatsApp</span></div>
+  </header>
+
+  <section>
+    <h2>وش تحتاج قبل ما تبدأ</h2>
+    <div class="need">
+      <div><b>Claude Code</b><small>مثبّت على جهازك ومسجّل دخول بحساب Claude</small></div>
+      <div><b>Node.js 20 أو أحدث</b><small>عشان أوامر <code>npx</code> و <code>npm</code></small></div>
+      <div><b>حساب Kapso</b><small>من <a href="https://app.kapso.ai" target="_blank" rel="noopener">app.kapso.ai</a>، فيه خطة مجانية</small></div>
+      <div><b>رقم واتساب</b><small>رقمك للبزنس، أو Kapso يعطيك رقم جاهز أثناء الإعداد</small></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>الخطوات</h2>
+    <ol class="steps">
+      <li><div class="step">
+        <h3>سوّ حساب في Kapso</h3>
+        <p>ادخل <a href="https://app.kapso.ai" target="_blank" rel="noopener">app.kapso.ai</a>، سجّل وسوّ مشروع (Project) جديد.</p>
+      </div></li>
+
+      <li><div class="step">
+        <h3>ثبّت الـ Kapso CLI وسجّل دخول</h3>
+        <p>افتح الـ Terminal واكتب:</p>
+        <div class="cmd"><button class="copy" type="button" id="c1">نسخ</button><pre><span class="p">$</span> npm install -g @kapso/cli
+<span class="p">$</span> kapso login
+<span class="p">$</span> kapso status</pre></div>
+        <p><code>kapso status</code> لازم يطلع لك اسم مشروعك. إذا ما طلع، شغّل <code>kapso projects list</code> ثم <code>kapso projects use &lt;project-id&gt;</code>.</p>
+      </div></li>
+
+      <li><div class="step">
+        <h3>ركّب مهارات الواتساب في Claude Code</h3>
+        <p>بأمر واحد تنزل المهارات الرسمية من Kapso (ربط الواتساب، الأتمتة، التشخيص):</p>
+        <div class="cmd"><button class="copy" type="button" id="c2">نسخ</button><pre><span class="p">$</span> npx skills add gokapso/agent-skills</pre></div>
+      </div></li>
+
+      <li><div class="step">
+        <h3>اربط رقم الواتساب</h3>
+        <div class="cmd"><button class="copy" type="button" id="c3">نسخ</button><pre><span class="p">$</span> kapso setup
+<span class="c"># افتح الرابط اللي يطلع وكمّل الربط</span>
+<span class="p">$</span> kapso whatsapp numbers list</pre></div>
+        <p>آخر أمر يطلع لك الرقم المتصل. تقدر تربط رقمك أو تاخذ رقم جديد من Kapso.</p>
+      </div></li>
+
+      <li><div class="step">
+        <h3>قول لـ Claude وش تريد بالضبط</h3>
+        <p>افتح Claude Code في مجلد جديد، وانسخ هذا البرومبت. عبّي اللي بين القوسين بمعلومات مشروعك:</p>
+        <div class="cmd prompt"><button class="copy" type="button" id="c4">نسخ البرومبت</button><pre id="prompt">أبغى أبني مساعد واتساب لمشروعي باستخدام Kapso ومهارات Kapso المثبّتة (integrate-whatsapp و automate-whatsapp).
+
+معلومات المشروع:
+- اسم المشروع: <span class="fill">[اكتب الاسم]</span>
+- نوع الخدمة: <span class="fill">[مثلاً: صالون / عيادة / متجر]</span>
+- أوقات الدوام: <span class="fill">[مثلاً: 9 الصبح لين 10 الليل، الجمعة إجازة]</span>
+- الخدمات والأسعار: <span class="fill">[القائمة]</span>
+- لغة الرد: عربي بلهجة خليجية، وإنجليزي إذا العميل كتب إنجليزي
+
+المطلوب:
+1. تأكد إن Kapso CLI مسجّل (kapso status) وإن عندي رقم واتساب متصل. إذا ما في رقم، شغّل kapso setup وعطني الرابط.
+2. ابني workflow يستقبل الرسائل الواردة ويرد عليها agent ذكي:
+   - يجاوب أسئلة الزبائن من معلومات المشروع فوق بس، وما يألّف معلومات.
+   - يحجز المواعيد: يسأل عن اليوم والوقت، يقترح أوقات متاحة، ويأكد الحجز برسالة واضحة.
+   - ياخذ الطلبيات: يجمع اسم العميل والطلب والعنوان، ويرسل له ملخص يأكده.
+   - إذا ما عرف الجواب أو العميل طلب يكلم موظف، يحوّل المحادثة لي.
+3. احفظ الحجوزات والطلبيات في قاعدة بيانات Kapso.
+4. جرّب الـ workflow برسالة تجريبية قبل التفعيل، واشرح لي وش سويت خطوة خطوة.
+
+لا تطبع الـ API key أو أي secret في المحادثة.</pre></div>
+      </div></li>
+
+      <li><div class="step">
+        <h3>جرّبه</h3>
+        <p>أرسل رسالة للرقم من جوال ثاني: «السلام عليكم، عندكم موعد بكرة؟». لازم يرد عليك ويقترح أوقات. إذا في شي ما ضبط، قول لـ Claude وش صار وهو يصلّحه.</p>
+      </div></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>نصايح قبل ما تشغّله للزباين</h2>
+    <ul class="tips">
+      <li><b>الـ API key سر.</b> لا تنشره ولا تحطه في كود ترفعه على GitHub.</li>
+      <li><b>جرّب على نفسك أول.</b> اسأله أسئلة غريبة وشوف هل يألّف أجوبة.</li>
+      <li><b>قوانين واتساب:</b> تقدر ترد بحرية خلال 24 ساعة من آخر رسالة للعميل. بعدها تحتاج قوالب (Templates) معتمدة.</li>
+      <li><b>المهارات لسا Alpha</b> حسب Kapso، فممكن تتغير الأوامر. إذا أمر ما اشتغل، ارجع لصفحة المهارات تحت.</li>
+    </ul>
+    <div class="note"><b>تعليق «Kapso»</b> على الريل هو اللي أوصلك هنا. تابعني عشان توصلك الشروحات الجاية 👋</div>
+  </section>
+
+  <footer>
+    <div>المصادر: <a href="https://github.com/gokapso/agent-skills" target="_blank" rel="noopener">github.com/gokapso/agent-skills</a> · <a href="https://kapso.ai" target="_blank" rel="noopener">kapso.ai</a></div>
+    <div dir="ltr" style="text-align:right">@code.sheikh — تقنية • أجهزة • ذكاء اصطناعي</div>
+  </footer>
+</div>
+
+<script>
+document.querySelectorAll('.copy').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var pre=btn.parentElement.querySelector('pre');
+    var txt=pre.innerText.split('\n').map(function(l){return l.replace(/^\$ /,'')}).filter(function(l){return !/^#/.test(l.trim())}).join('\n');
+    var label=btn.textContent;
+    function ok(){btn.textContent='تم النسخ ✓';btn.classList.add('done');setTimeout(function(){btn.textContent=label;btn.classList.remove('done')},1600)}
+    function fallback(){var r=document.createRange();r.selectNodeContents(pre);var s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent='حدّد وانسخ'}
+    try{navigator.clipboard.writeText(txt).then(ok,fallback)}catch(e){fallback()}
+  });
+});
+</script>
+</body>
+</html>
